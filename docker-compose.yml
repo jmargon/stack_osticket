@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5.5.62
+    container_name: mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: osticket
+      MYSQL_USER: osticket
+      MYSQL_PASSWORD: osticket
+    volumes:
+      - ./osticket-db:/var/lib/mysql
+    networks:
+      - osticket-network
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: osticket
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      OST_DB_HOST: ost-man-db
+      OST_DB_NAME: osticket
+      OST_DB_USER: osticket
+      OST_DB_PASS: osticket
+    depends_on:
+      - db
+    volumes:
+      - ./osticket-web:/var/log/html
+    networks:
+      - osticket-network
+
+volumes:
+  osticket-db:
+  osticket-web:
+
+networks:
+  osticket-network:
+    name: osticket-network
+    driver: bridge
